@@ -4,6 +4,7 @@ import helmet from "helmet";
 
 import authRoutes from "./routes/auth.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import taskRoutes from "./routes/task.routes.js";
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use(express.json());
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
 app.use("/auth", authRoutes);
+
+app.use("/tasks", taskRoutes);
 
 app.use(errorHandler);
 
