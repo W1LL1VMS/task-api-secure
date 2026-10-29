@@ -1,11 +1,11 @@
- Task API Secure
+# Task API Secure
 
 API REST de gestion de tâches avec authentification JWT, rôles utilisateurs et une attention particulière portée à la sécurité.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20+-green)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
- Fonctionnalités
+## Fonctionnalités
 
 - Inscription et connexion avec JWT (access token + refresh token)
 - Mots de passe hashés avec bcrypt, jamais stockés en clair
@@ -15,7 +15,7 @@ API REST de gestion de tâches avec authentification JWT, rôles utilisateurs et
 - Limitation du taux de requêtes sur la connexion (protection brute-force)
 - Documentation interactive via Swagger
 
- Stack technique
+## Stack technique
 
 - Node.js, Express
 - PostgreSQL, Prisma (avec adaptateur pg)
@@ -23,60 +23,60 @@ API REST de gestion de tâches avec authentification JWT, rôles utilisateurs et
 - Zod pour la validation
 - Jest et Supertest pour les tests
 
- Installation
+## Installation
 
-
+\`\`\`bash
 git clone https://github.com/W1LL1VMS/task-api-secure.git
 cd task-api-secure
 npm install
-
+\`\`\`
 
 Crée les bases PostgreSQL :
-
+\`\`\`sql
 CREATE DATABASE task_api_dev;
 CREATE DATABASE task_api_test;
-
+\`\`\`
 
 Copie \`.env.example\` vers \`.env\` et remplis les valeurs (URL de connexion PostgreSQL, secrets JWT générés aléatoirement).
 
 Applique les migrations :
-
+\`\`\`bash
 npx prisma migrate dev
-
+\`\`\`
 
 Lance le serveur :
-
+\`\`\`bash
 npm run dev
+\`\`\`
 
-
- Documentation de l'API
+## Documentation de l'API
 
 Une fois le serveur lancé, la documentation interactive est disponible sur \`http://localhost:3000/docs\`.
 
- Tests
+## Tests
 
-
+\`\`\`bash
 npm test
+\`\`\`
 
-
- Choix de sécurité
+## Choix de sécurité
 
 - Les mots de passe sont hashés avec bcrypt (coût 12), jamais stockés ni journalisés en clair
 - Les erreurs de connexion ne distinguent jamais "email inconnu" de "mot de passe incorrect", pour empêcher l'énumération des comptes existants
 - L'accès à une tâche appartenant à un autre utilisateur renvoie une erreur 404 (pas 403), pour ne pas révéler l'existence de la ressource
 - Les secrets (base de données, JWT) vivent uniquement dans des variables d'environnement, jamais dans le code
 
- Limites actuelles
+## Limites actuelles
 
 Pas de vérification d'email à l'inscription. Les refresh tokens ne sont pas encore révocables en base (une liste noire serait nécessaire pour ça).
 
- Améliorations prévues
+## Améliorations prévues
 
 - Révocation des refresh tokens
 - Vérification d'email
 - Pagination sur la liste des tâches
 
- Licence
+## Licence
 
 MIT — voir [LICENSE](LICENSE).
 
