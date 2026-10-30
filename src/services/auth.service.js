@@ -1,6 +1,14 @@
 import { prisma } from "../config/db.js";
 import { hashPassword, verifyPassword } from "./password.service.js";
-import { generateAccessToken, generateRefreshToken } from "./token.service.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "./token.service.js";
+
+function toPublicUser(user) {
+  return { id: user.id, email: user.email, role: user.role };
+}
 
 export async function registerUser({ email, password }) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -10,18 +18,15 @@ export async function registerUser({ email, password }) {
   }
 
   const passwordHash = await hashPassword(password);
+  const user = await prisma.user.create({ data: { email, passwordHash } });
 
-  const user = await prisma.user.create({
-    data: { email, passwordHash },
-  });
-
-  return { id: user.id, email: user.email, role: user.role };
+  return toPublicUser(user);
 }
 
 export async function loginUser({ email, password }) {
   const user = await prisma.user.findUnique({ where: { email } });
 
-  // Même message qu'il existe ou non, qu'il existe mais mauvais mot de passe
+  // Même erreur que l'email existe ou non
   if (!user) {
     throw new Error("INVALID_CREDENTIALS");
   }
@@ -31,12 +36,30 @@ export async function loginUser({ email, password }) {
     throw new Error("INVALID_CREDENTIALS");
   }
 
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
+  return {
+    user: toPublicUser(user),
+    accessToken: generateAccessToken(user),
+    refreshToken: generateRefreshToken(user),
+  };
+}
+
+export async function refreshSession(refreshToken) {
+  let payload;
+  try {
+    payload = verifyRefreshToken(refreshToken);
+  } catch {
+    throw new Error("INVALID_REFRESH_TOKEN");
+  }
+
+  // On recharge l'utilisateur en base : si le compte a été supprimé, la session s'arrête
+  const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+  if (!user) {
+    throw new Error("INVALID_REFRESH_TOKEN");
+  }
 
   return {
-    user: { id: user.id, email: user.email, role: user.role },
-    accessToken,
-    refreshToken,
+    user: toPublicUser(user),
+    accessToken: generateAccessToken(user),
+    refreshToken: generateRefreshToken(user), // rotation : nouveau refresh token à chaque renouvellement
   };
 }

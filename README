@@ -65,6 +65,7 @@ npm test
 - Les erreurs de connexion ne distinguent jamais "email inconnu" de "mot de passe incorrect", pour empêcher l'énumération des comptes existants
 - L'accès à une tâche appartenant à un autre utilisateur renvoie une erreur 404 (pas 403), pour ne pas révéler l'existence de la ressource
 - Les secrets (base de données, JWT) vivent uniquement dans des variables d'environnement, jamais dans le code
+- Le refresh token est transmis dans un cookie HttpOnly, limité aux routes /auth, et n'est jamais lisible depuis le JavaScript du navigateur
 
 ## Limites actuelles
 

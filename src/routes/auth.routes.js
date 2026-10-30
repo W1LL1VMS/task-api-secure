@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login } from "../controllers/auth.controller.js";
+import { register, login, refresh, logout } from "../controllers/auth.controller.js";
 import { loginLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = Router();
@@ -30,7 +30,7 @@ router.post("/register", register);
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Se connecter et obtenir des tokens JWT
+ *     summary: Se connecter (access token dans le corps, refresh token dans un cookie HttpOnly)
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -43,9 +43,32 @@ router.post("/register", register);
  *               email: { type: string, format: email }
  *               password: { type: string }
  *     responses:
- *       200: { description: Connexion réussie, renvoie accessToken et refreshToken }
+ *       200: { description: Connexion réussie }
  *       401: { description: Identifiants incorrects }
  */
 router.post("/login", loginLimiter, login);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: Renouveler la session à partir du cookie de refresh token
+ *     tags: [Auth]
+ *     responses:
+ *       200: { description: Nouvel access token et utilisateur }
+ *       401: { description: Session expirée ou invalide }
+ */
+router.post("/refresh", refresh);
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Se déconnecter (supprime le cookie de refresh token)
+ *     tags: [Auth]
+ *     responses:
+ *       204: { description: Déconnecté }
+ */
+router.post("/logout", logout);
 
 export default router;
